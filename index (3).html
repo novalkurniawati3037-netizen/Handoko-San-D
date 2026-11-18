@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Handoko-san — The Third Year Survival Quest</title>
+<meta name="description" content="A very special interactive birthday experience for Handoko-san. Doctoral Journey Edition.">
+<style>
+:root {
+  --bg: #101329;
+  --panel: rgba(255,255,255,.06);
+  --border: #625b9b;
+  --purple: #a78bfa;
+  --pink: #f3a9d1;
+  --text: #f5eaff;
+  --muted: #b6b8d9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #070812;
+  color: var(--text);
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px;
+}
+#birthday-game {
+  background: var(--bg);
+  max-width: 760px;
+  width: 100%;
+  margin: 12px auto 40px;
+  padding: 18px;
+  border-radius: 22px;
+  text-align: center;
+  overflow: hidden;
+  border: 2px solid var(--purple);
+  box-shadow: 0 0 28px #7662c5aa;
+  position: relative;
+}
+h1 { color: #f5b8e7; font-size: clamp(24px, 5vw, 38px); margin: 8px 0; }
+h2 { color: #c9b5ff; margin: 8px 0; }
+h3 { margin: 8px 0; color: #e8e0ff; }
+p { line-height: 1.65; }
+.sub { color: var(--muted); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 17px;
+  margin: 14px 0;
+}
+button {
+  background: var(--purple);
+  color: #17152d;
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 18px;
+  margin: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: .2s;
+  font-family: inherit;
+}
+button:hover { background: #e9b5e9; transform: scale(1.03); }
+button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+button.secondary { background: #34345c; color: white; }
+button.pink { background: var(--pink); color: #2a1530; }
+.hidden { display: none !important; }
+.big { font-size: 48px; margin: 8px; }
+.stat {
+  display: inline-block;
+  background: #252746;
+  border-radius: 10px;
+  padding: 9px 14px;
+  margin: 4px;
+  font-size: 13px;
+}
+.progress {
+  background: #292a49;
+  height: 9px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+#bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #a78bfa, #f3a9d1);
+  transition: .3s;
+}
+canvas {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  background: #151b38;
+  border: 2px solid #7469ad;
+  border-radius: 13px;
+  display: block;
+  margin: 10px auto;
+  touch-action: none;
+}
+.choice {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 9px auto;
+  text-align: left;
+}
+.message {
+  color: #f7d8ed;
+  font-size: 16px;
+  line-height: 1.9;
+  text-align: left;
+}
+.footer {
+  color: #8586ae;
+  font-size: 11px;
+  margin-top: 20px;
+}
+.star { animation: twinkle 1.5s infinite alternate; }
+@keyframes twinkle { from { opacity: .4 } to { opacity: 1 } }
+
+/* Music toggle */
+#music-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 18px;
+  background: #34345c;
+  color: #fff;
+  box-shadow: 0 2px 10px #0006;
+}
+
+
+</style>
+</head>
+<body>
+<div id="birthday-game">
+
+<button type="button" id="music-btn" title="Toggle music" aria-label="Music">🔇</button>
+<audio id="bgm" loop preload="none">
+  <!-- Ganti src dengan file musik Anda, contoh: music.mp3 di folder yang sama -->
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="sub">A Very Special Interactive Experience</div>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="big">🔬🌙✨</div>
+  <h1>HANDOKO-SAN</h1>
+  <h2>THE THIRD YEAR SURVIVAL QUEST</h2>
+  <p>Doctoral Journey Edition</p>
+  <div class="panel">
+    <h2>⚠️ SYSTEM ALERT</h2>
+    <p>Dear Handoko-san,</p>
+    <p>A new level has been unlocked.</p>
+    <p>Unfortunately, this is not a new academic degree.</p>
+    <p><b>IT'S YOUR BIRTHDAY!</b> 🎂</p>
+    <p>Meanwhile, your laboratory still has 99 unresolved mysteries.</p>
+    <p>Are you ready to survive another year?</p>
+  </div>
+  <button type="button" onclick="start()">START YOUR QUEST 🚀</button>
+  <p class="sub" style="margin-top:12px">Warning: may contain excessive dad jokes</p>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="hidden">
+  <div class="stat">🧪 DOCTORAL LEVEL 03</div>
+  <div class="stat">🧠 OVERTHINKING: MAX</div>
+  <div class="progress"><div id="bar"></div></div>
+  <h2 id="qtitle">LEVEL 1</h2>
+  <div class="panel">
+    <div class="big" id="qemoji">🤔</div>
+    <h3 id="question"></h3>
+    <div id="answers"></div>
+    <p id="feedback"></p>
+  </div>
+</div>
+
+<!-- LAB GAME -->
+<div id="lab" class="hidden">
+  <h2>🧪 LABORATORY SURVIVAL</h2>
+  <p>MISSION: COLLECT 10 STARS OF HOPE!</p>
+  <div class="stat">⭐ Score: <span id="score">0</span>/10</div>
+  <div class="stat">⏳ Time: <span id="timer">30</span>s</div>
+  <p class="sub">Catch the stars. Avoid the overthinking!</p>
+  <canvas id="gameCanvas" width="600" height="360"></canvas>
+  <p style="font-size:13px;color:var(--muted)">← → or A / D · On mobile use buttons</p>
+  <button type="button" class="secondary" onpointerdown="move(-1)" onpointerup="move(0)" onpointerleave="move(0)" ontouchstart.prevent="move(-1)">⬅️ LEFT</button>
+  <button type="button" class="secondary" onpointerdown="move(1)" onpointerup="move(0)" onpointerleave="move(0)" ontouchstart.prevent="move(1)">RIGHT ➡️</button>
+  <p id="labmessage">Your experiment begins now, scientist!</p>
+  <button type="button" id="labNext" class="hidden" onclick="boss()">CONTINUE ➡️</button>
+</div>
+
+<!-- BOSS -->
+<div id="boss" class="hidden">
+  <h2>💀 FINAL BOSS BATTLE</h2>
+  <div class="big">🤡</div>
+  <div class="panel">
+    <h3>THE DAD JOKE MONSTER</h3>
+    <p>Boss HP: <span id="hp">3</span> 🌟</p>
+    <p id="jokeQuestion"></p>
+    <div id="jokeAnswers"></div>
+    <p id="jokeFeedback"></p>
+  </div>
+</div>
+
+<!-- ENDING -->
+<div id="ending" class="hidden">
+  <div class="big">🏆🎂🌟</div>
+  <h1>QUEST COMPLETED!</h1>
+  <h2>HAPPY BIRTHDAY, HANDOKO-SAN!</h2>
+  <div class="panel">
+    <p>Achievement unlocked:</p>
+    <h2>🏅 THE LEGENDARY SURVIVOR</h2>
+    <p>+1 Age</p>
+    <p>+1000 Experience</p>
+    <p>+999 Overthinking</p>
+    <p>+∞ Dad Joke Energy</p>
+    <p><b>Doctoral progress: Still loading...</b> ⏳</p>
+  </div>
+  <p>But jokes aside...</p>
+  <button type="button" class="pink" onclick="reveal()">🎁 OPEN YOUR SECRET GIFT</button>
+  <div id="letter" class="hidden">
+    <div class="panel">
+      <div class="big star">🌌✨🌙</div>
+      <h2>A LITTLE MESSAGE FOR YOU</h2>
+      <p class="message">
+        Selamat bertambah usia, pak de nya Supranatural Lab
+        <br><br>
+        Semoga langit pagimu cerah dan langit malammu selalu ada sisa cahaya di kala lelahmu.
+        <br><br>
+        Semoga selalu ada kemudahan serta keajaiban di setiap kesulitanmu.
+        <br><br>
+        Untuk semua hari yang dihabiskan di lab, riset yang belum sesuai harapan, data yang sulit dipahami, dan pikiran yang terkadang terlalu ramai...
+        <br><br>
+        I hope you remember that you are doing better than you think.
+        <br><br>
+        Tidak semua perjalanan harus selesai hari ini. Tidak semua pertanyaan harus terjawab malam ini. It's okay to not be okay, yang penting ngeluh dulu tapi tetap dikerjakan ✌️.
+        <br><br>
+        Keep going, Handoko-san. Semoga perjalanan panjang ini juga memberimu banyak hal indah untuk dikenang. Sedikit lagi, ayok semangat.
+        <br><br>
+        <b>May life be kinder to you, and may you never run out of reasons to smile.</b>
+        <br><br>
+        Barakallah fii umrik! Cie makin tua 🌟
+      </p>
+      <div class="big">🌠🎂🌠</div>
+      <p class="sub">End of quest — beginning of another beautiful chapter</p>
+    </div>
+  </div>
+  <button type="button" class="secondary" onclick="restart()">🔄 PLAY AGAIN</button>
+</div>
+
+<div class="footer">Made with ✌️ for Handoko-san · Birthday Edition</div>
+</div>
+
+<script>
+(function () {
+  const TOTAL_Q = 5;
+
+  function show(id) {
+    ['intro', 'quiz', 'lab', 'boss', 'ending'].forEach(function (x) {
+      document.getElementById(x).classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // —— Music ——
+  const bgm = document.getElementById('bgm');
+  const musicBtn = document.getElementById('music-btn');
+  let musicOn = false;
+  function toggleMusic() {
+    if (!bgm.querySelector('source').src || bgm.querySelector('source').src.endsWith('music.mp3') && !bgm.src) {
+      // try play anyway; if no file, browser fails silently
+    }
+    if (musicOn) {
+      bgm.pause();
+      musicBtn.textContent = '🔇';
+      musicOn = false;
+    } else {
+      bgm.volume = 0.35;
+      bgm.play().then(function () {
+        musicBtn.textContent = '🔊';
+        musicOn = true;
+      }).catch(function () {
+        musicBtn.textContent = '🔇';
+        alert('Tambahkan file music.mp3 di folder yang sama, atau ganti source audio di HTML.');
+      });
+    }
+  }
+  musicBtn.addEventListener('click', toggleMusic);
+
+  // —— Quiz data (fixed commas & correct indices) ——
+  const questions = [
+    {
+      emoji: '🧠',
+      title: 'LEVEL 1: OVERTHINKING MODE',
+      q: 'Ketika eksperimen gagal untuk kesekian kalinya, apa yang dilakukan Handoko-san?',
+      a: ['Mencoba lagi dengan penuh semangat', 'Overthinking sampai besok pagi', 'Menatap alat lab sambil mempertanyakan hidup', 'Menonton Upin Ipin atau Dua Bahlul'],
+      correct: 1,
+      response: 'Correct! Your brain has officially entered the unlimited-thinking subscription. 🤣'
+    },
+    {
+      emoji: '🧪',
+      title: 'LEVEL 2: LABORATORY REALITY',
+      q: 'Apa yang diucapkan Babeh Kak Frika kalau ketemu Handoko-san?',
+      a: ['Good morning!', 'How about your research?', 'Good Job Handoko-san!', 'Do you not understand?'],
+      correct: 1,
+      response: 'OUCH. Bahkan E. coli pun ikut merasakan penderitaan ini. 😭'
+    },
+    {
+      emoji: '☕',
+      title: 'LEVEL 3: ENERGY MANAGEMENT',
+      q: 'Apa kebutuhan utama Handoko-san saat deadline mendekat?',
+      a: ['Tidur 8 jam', 'Milk tea atau apple juice dan doa', 'Liburan 3 bulan', 'Menghilang dari peradaban sejenak'],
+      correct: 1,
+      response: 'Scientific answer: milk tea atau apple juice. Spiritual answer: doa. Survival answer: BOTH. 😂'
+    },
+    {
+      emoji: '💀',
+      title: 'LEVEL 4: THE PhD CRISIS',
+      q: 'Sudah tahun ketiga PhD, eksperimen belum selesai, ganti judul, deadline mendekat. Apa respons paling realistis Handoko-san?',
+      a: [
+        'Everything is under control.',
+        'Maybe I should change my research topic.',
+        'Let me sleep first. Tomorrow I will figure it out.'
+      ],
+      correct: 2,
+      response: 'CORRECT! 🤣 Sleep is temporary, but PhD problems respawn every morning!'
+    },
+    {
+      emoji: '👨‍🏫💀',
+      title: 'LEVEL 5: SENSEI HAS ENTERED THE CHAT',
+      q: 'Sudah tahun terakhir PhD, tinggal sedikit lagi menuju garis finis. Tiba-tiba Sensei berkata: "I think we need to change the title." What is Handoko-san feeling?',
+      a: [
+        'A little bit excited. New adventure!',
+        'Mentally buffering... Please wait.',
+        'I need to lie down and rethink my entire existence.'
+      ],
+      correct: 2,
+      response: '💀 CRITICAL ERROR! Handoko-san.exe has stopped responding. Sensei just unlocked a new side quest in the FINAL YEAR!'
+    }
+  ];
+
+  let qi = 0;
+
+  window.start = function () {
+    // unlock audio on user gesture
+    if (bgm) {
+      bgm.volume = 0.35;
+      bgm.play().then(function () {
+        musicOn = true;
+        musicBtn.textContent = '🔊';
+      }).catch(function () {});
+    }
+    qi = 0;
+    show('quiz');
+    renderQuestion();
+  };
+
+  function renderQuestion() {
+    const q = questions[qi];
+    document.getElementById('qtitle').innerText = q.title;
+    document.getElementById('qemoji').innerText = q.emoji;
+    document.getElementById('question').innerText = q.q;
+    document.getElementById('feedback').innerText = '';
+    document.getElementById('bar').style.width = ((qi / TOTAL_Q) * 100) + '%';
+    const el = document.getElementById('answers');
+    el.innerHTML = '';
+    q.a.forEach(function (ans, i) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice';
+      b.innerText = ans;
+      b.onclick = function () { choose(i); };
+      el.appendChild(b);
+    });
+  }
+
+  function choose(i) {
+    const q = questions[qi];
+    const f = document.getElementById('feedback');
+    f.innerText = i === q.correct ? q.response : 'Wrong answer! But that is also a valid doctoral experience. 🤣';
+    document.querySelectorAll('#answers button').forEach(function (b) { b.disabled = true; });
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerText = qi === TOTAL_Q - 1 ? 'ENTER THE LAB 🎮' : 'NEXT LEVEL ➡️';
+    b.onclick = function () {
+      qi++;
+      if (qi < TOTAL_Q) renderQuestion();
+      else beginLab();
+    };
+    document.getElementById('answers').appendChild(b);
+  }
+
+  // —— Lab canvas game ——
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  let player = { x: 275, y: 315, w: 65, h: 23 };
+  let objects = [];
+  let score = 0;
+  let direction = 0;
+  let running = false;
+  let raf;
+  let lastSpawn = 0;
+  let lastTime = 0;
+  let labStart = 0;
+  let timerId = null;
+
+  window.move = function (d) { direction = d; };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') direction = -1;
+    if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') direction = 1;
+  });
+  document.addEventListener('keyup', function (e) {
+    if (['ArrowLeft', 'ArrowRight', 'a', 'A', 'd', 'D'].includes(e.key)) direction = 0;
+  });
+
+  function beginLab() {
+    show('lab');
+    score = 0;
+    objects = [];
+    player.x = 275;
+    running = true;
+    lastSpawn = 0;
+    lastTime = performance.now();
+    labStart = performance.now();
+    document.getElementById('score').innerText = score;
+    document.getElementById('timer').innerText = '30';
+    document.getElementById('labNext').classList.add('hidden');
+    document.getElementById('labmessage').innerText = 'Collect the stars of hope! Avoid the overthinking monsters!';
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(function () {
+      if (!running) return;
+      const left = Math.max(0, 30 - Math.floor((performance.now() - labStart) / 1000));
+      document.getElementById('timer').innerText = left;
+      if (left <= 0) finishLab(false);
+    }, 250);
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(loop);
+  }
+
+  function spawn() {
+    objects.push({
+      x: 20 + Math.random() * 550,
+      y: -25,
+      speed: 2 + Math.random() * 2.5,
+      type: Math.random() < 0.72 ? '⭐' : '💀'
+    });
+  }
+
+  function drawBackground() {
+    ctx.fillStyle = '#151b38';
+    ctx.fillRect(0, 0, 600, 360);
+    for (let i = 0; i < 45; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,.55)';
+      ctx.fillRect((i * 97) % 600, (i * 53) % 360, 2, 2);
+    }
+    ctx.fillStyle = '#31375d';
+    ctx.fillRect(0, 340, 600, 20);
+  }
+
+  function loop(now) {
+    if (!running) return;
+    const dt = Math.min((now - lastTime) / 16.67, 2);
+    lastTime = now;
+
+    if (now - lastSpawn > 650) {
+      spawn();
+      lastSpawn = now;
+    }
+
+    drawBackground();
+    player.x += direction * 5 * dt;
+    player.x = Math.max(0, Math.min(535, player.x));
+
+    ctx.font = '34px serif';
+    ctx.fillText('🧑‍🔬', player.x + 12, player.y - 5);
+    ctx.fillStyle = '#f5b8e7';
+    ctx.fillRect(player.x, player.y + 5, player.w, player.h);
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('HANDOKO', player.x + 5, player.y + 21);
+
+    objects = objects.filter(function (o) {
+      o.y += o.speed * dt;
+      ctx.font = '25px serif';
+      ctx.fillText(o.type, o.x, o.y);
+      if (o.y > 285 && o.y < 350 && o.x > player.x - 15 && o.x < player.x + player.w + 15) {
+        if (o.type === '⭐') {
+          score++;
+          document.getElementById('score').innerText = score;
+        } else {
+          score = Math.max(0, score - 1);
+          document.getElementById('score').innerText = score;
+        }
+        return false;
+      }
+      return o.y < 380;
+    });
+
+    if (score >= 10) {
+      finishLab(true);
+      return;
+    }
+    if (now - labStart >= 30000) {
+      finishLab(false);
+      return;
+    }
+    raf = requestAnimationFrame(loop);
+  }
+
+  function finishLab(win) {
+    running = false;
+    cancelAnimationFrame(raf);
+    if (timerId) clearInterval(timerId);
+    document.getElementById('labmessage').innerText = win
+      ? 'MISSION ACCOMPLISHED! Handoko-san collected 10 stars! 🌟'
+      : 'TIME IS UP! But hey, surviving is also an achievement. 🌟';
+    document.getElementById('labNext').classList.remove('hidden');
+  }
+
+  // —— Boss jokes ——
+  const jokes = [
+    {
+      q: 'Kenapa kalender selalu terlihat bahagia?',
+      a: ['Karena banyak tanggal merah', 'Karena punya banyak teman', 'Karena tidak punya deadline'],
+      c: 0,
+      r: 'Karena dia selalu punya tanggal merah! 🤡'
+    },
+    {
+      q: 'Apa bedanya skripsi dan PhD?',
+      a: ['PhD lebih panjang', 'Sama-sama bikin pusing', 'Yang satu selesai lebih cepat'],
+      c: 1,
+      r: 'Betul! Dua-duanya bisa bikin kepala berasap. 💀'
+    },
+    {
+      q: 'Kenapa ilmuwan tidak pernah kesepian?',
+      a: ['Karena punya banyak teman', 'Karena selalu ditemani data', 'Karena punya banyak followers'],
+      c: 1,
+      r: 'Karena selalu ada data yang menemani... walaupun kadang datanya tidak signifikan. 😂'
+    }
+  ];
+  let ji = 0;
+  let hp = 3;
+
+  window.boss = function () {
+    show('boss');
+    ji = 0;
+    hp = 3;
+    renderBoss();
+  };
+
+  function renderBoss() {
+    document.getElementById('hp').innerText = hp;
+    document.getElementById('jokeFeedback').innerText = '';
+    const j = jokes[ji];
+    document.getElementById('jokeQuestion').innerText = j.q;
+    const el = document.getElementById('jokeAnswers');
+    el.innerHTML = '';
+    j.a.forEach(function (ans, i) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice';
+      b.innerText = ans;
+      b.onclick = function () { answerBoss(i); };
+      el.appendChild(b);
+    });
+  }
+
+  function answerBoss(i) {
+    const j = jokes[ji];
+    hp--;
+    document.getElementById('hp').innerText = hp;
+    document.getElementById('jokeFeedback').innerText =
+      i === j.c ? j.r : 'Incorrect! But your confidence is admirable. 🤣';
+    document.querySelectorAll('#jokeAnswers button').forEach(function (b) { b.disabled = true; });
+    ji++;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerText = ji < 3 ? 'NEXT ATTACK ⚔️' : 'DEFEAT THE BOSS 🏆';
+    b.onclick = function () {
+      if (ji < 3) renderBoss();
+      else showEnding();
+    };
+    document.getElementById('jokeAnswers').appendChild(b);
+  }
+
+  function showEnding() {
+    show('ending');
+    confetti();
+  }
+
+  window.reveal = function () {
+    document.getElementById('letter').classList.remove('hidden');
+    document.getElementById('letter').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    confetti();
+  };
+
+  window.restart = function () {
+    running = false;
+    cancelAnimationFrame(raf);
+    if (timerId) clearInterval(timerId);
+    direction = 0;
+    document.getElementById('letter').classList.add('hidden');
+    show('intro');
+  };
+
+  function confetti() {
+    const root = document.getElementById('birthday-game');
+    const emojis = ['✨', '🌟', '🎉', '💜', '🎂', '⭐'];
+    let count = 0;
+    const timer = setInterval(function () {
+      const el = document.createElement('div');
+      el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.cssText = 'position:absolute;left:' + (Math.random() * 95) + '%;top:0;font-size:22px;pointer-events:none;z-index:10;';
+      root.appendChild(el);
+      let y = 0;
+      const anim = setInterval(function () {
+        y += 5;
+        el.style.top = y + 'px';
+        el.style.opacity = String(1 - y / 500);
+        if (y > 450) { clearInterval(anim); el.remove(); }
+      }, 25);
+      count++;
+      if (count > 35) clearInterval(timer);
+    }, 75);
+  }
+})();
+</script>
+</body>
+</html>
